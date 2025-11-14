@@ -289,7 +289,7 @@
       <div>
         <h1>Esports Control Panel – Valorant</h1>
         <div class="subheading">
-          Admin control room for the Valorant double-elimination bracket.
+          Admin control room for the Valorant 6-team double-elimination bracket.
           This page sends and receives JSON from your Google Apps Script backend.
         </div>
         <div class="status" id="status-line">
@@ -315,13 +315,13 @@
         <div class="panel-header">
           <div class="panel-title">Bracket Matches</div>
           <div class="panel-sub">
-            Per-match series scores (map wins). Use labels to track which round this is.
+            6-team double-elimination. Enter series scores (map wins) for each match.
           </div>
         </div>
         <div id="matches-container"></div>
         <div class="footnote">
-          All matches are treated as BO3 for recording (<em>map wins</em>), but your public bracket logic can enforce
-          “undefeated team must be beaten twice” in Grand Finals.
+          Structure: UB R1 (M1–M2) → UB Semis (M3–M4) → UB Final (M5),
+          plus four Lower Bracket matches (M6–M9) and Grand Final / Reset (M10–M11).
         </div>
       </div>
 
@@ -344,7 +344,7 @@
             <li>3 – Buchanan High School</li>
             <li>4 – Watervliet High School</li>
             <li>5 – Marcellus High School</li>
-            <li>6 – Michigan Lutheran High School</li>
+            <li>6 – Michigan Lutheran Highschool</li>
           </ul>
         </div>
 
@@ -390,41 +390,23 @@
       "Buchanan High School",
       "Watervliet High School",
       "Marcellus High School",
-      "Michigan Lutheran High School"
+      "Michigan Lutheran Highschool"
     ];
 
-    // Define the bracket matches for 6-team double elim
-// Seeds: 1 St. Joseph, 2 West Ottawa, 3 Buchanan, 4 Watervliet, 5 Marcellus, 6 Michigan Lutheran
-const matchDefinitions = [
-  { id: "M1", label: "Upper Round 1 (3 Buchanan vs 6 Michigan Lutheran)" },
-  { id: "M2", label: "Upper Round 1 (4 Watervliet vs 5 Marcellus)" },
-  { id: "M3", label: "Upper Semifinal (1 St. Joseph vs winner of M2)" },
-  { id: "M4", label: "Upper Semifinal (2 West Ottawa vs winner of M1)" },
-  { id: "M5", label: "Lower Round 1" },
-  { id: "M6", label: "Lower Semifinal" },
-  { id: "M7", label: "Lower Final" },
-  { id: "M8", label: "Grand Final (First Series)" },
-  { id: "M9", label: "Grand Final Reset (if needed)" }
-];
-
-    function getSeedFallbackNames(id) {
-  switch (id) {
-    case "M1":
-      // 3 vs 6
-      return ["Buchanan High School", "Michigan Lutheran Highschool"];
-    case "M2":
-      // 4 vs 5
-      return ["Watervliet High School", "Marcellus High School"];
-    case "M3":
-      // 1 vs winner of M2
-      return ["St. Joseph", "Winner of M2"];
-    case "M4":
-      // 2 vs winner of M1
-      return ["West Ottawa High School", "Winner of M1"];
-    default:
-      return ["TBD", "TBD"];
-  }
-}
+    // Proper 6-team double-elim match layout (11 matches)
+    const matchDefinitions = [
+      { id: "M1",  label: "UB Round 1 – (3 Buchanan vs 6 Michigan Lutheran)" },
+      { id: "M2",  label: "UB Round 1 – (4 Watervliet vs 5 Marcellus)" },
+      { id: "M3",  label: "UB Semifinal – (1 St. Joseph vs winner of M2)" },
+      { id: "M4",  label: "UB Semifinal – (2 West Ottawa vs winner of M1)" },
+      { id: "M5",  label: "UB Final – (Winner M3 vs Winner M4)" },
+      { id: "M6",  label: "LB Round 1 – (Loser M1 vs Loser M2)" },
+      { id: "M7",  label: "LB Round 2 – (Loser M3 vs Winner M6)" },
+      { id: "M8",  label: "LB Round 3 – (Loser M4 vs Winner M7)" },
+      { id: "M9",  label: "LB Final – (Loser M5 vs Winner M8)" },
+      { id: "M10", label: "Grand Final – (Winner UB vs Winner LB)" },
+      { id: "M11", label: "Grand Final Reset – (if needed)" }
+    ];
 
     function setStatus(msg, isError = false) {
       statusLine.innerHTML = msg;
@@ -465,7 +447,7 @@ const matchDefinitions = [
         container.appendChild(card);
       });
 
-      // default all score inputs to 0
+      // Default all score inputs to 0
       document.querySelectorAll(".score-input").forEach(inp => {
         if (!inp.value) inp.value = "0";
       });
