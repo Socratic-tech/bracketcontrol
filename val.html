@@ -344,7 +344,7 @@
             <li>3 – Buchanan High School</li>
             <li>4 – Watervliet High School</li>
             <li>5 – Marcellus High School</li>
-            <li>6 – Michigan Lutheran Highschool</li>
+            <li>6 – Michigan Lutheran High School</li>
           </ul>
         </div>
 
@@ -390,21 +390,23 @@
       "Buchanan High School",
       "Watervliet High School",
       "Marcellus High School",
-      "Michigan Lutheran Highschool"
+      "Michigan Lutheran High School"
     ];
 
-    // Define the bracket matches
-    const matchDefinitions = [
-      { id: "M1", label: "Upper Round 1 (2 vs 3)" },
-      { id: "M2", label: "Upper Round 1 (4 vs 5)" },
-      { id: "M3", label: "Upper Semifinal (1 vs winner of M2)" },
-      { id: "M4", label: "Upper Final" },
-      { id: "M5", label: "Lower Round 1" },
-      { id: "M6", label: "Lower Semifinal" },
-      { id: "M7", label: "Lower Final" },
-      { id: "M8", label: "Grand Final (First Series)" },
-      { id: "M9", label: "Grand Final Reset (if needed)" }
-    ];
+    // Define the bracket matches for 6-team double elim
+// Seeds: 1 St. Joseph, 2 West Ottawa, 3 Buchanan, 4 Watervliet, 5 Marcellus, 6 Michigan Lutheran
+const matchDefinitions = [
+  { id: "M1", label: "Upper Round 1 (3 Buchanan vs 6 Michigan Lutheran)" },
+  { id: "M2", label: "Upper Round 1 (4 Watervliet vs 5 Marcellus)" },
+  { id: "M3", label: "Upper Semifinal (1 St. Joseph vs winner of M2)" },
+  { id: "M4", label: "Upper Semifinal (2 West Ottawa vs winner of M1)" },
+  { id: "M5", label: "Lower Round 1" },
+  { id: "M6", label: "Lower Semifinal" },
+  { id: "M7", label: "Lower Final" },
+  { id: "M8", label: "Grand Final (First Series)" },
+  { id: "M9", label: "Grand Final Reset (if needed)" }
+];
+
 
     function setStatus(msg, isError = false) {
       statusLine.innerHTML = msg;
