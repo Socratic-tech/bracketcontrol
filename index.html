@@ -596,7 +596,7 @@
       }
     }
 
-    async function saveToServer() {
+   async function saveToServer() {
   if (!API_URL || API_URL.includes("PASTE_YOUR_APPS_SCRIPT")) {
     alert("You must set API_URL in the HTML before saving.");
     return;
@@ -607,10 +607,8 @@
   try {
     const res = await fetch(API_URL, {
       method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" }, // 👈 important
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(snapshot)
-      // If your domain setup later requires it, you can add:
-      // credentials: "include"
     });
     const data = await res.json();
     if (data.error === "unauthorized") {
