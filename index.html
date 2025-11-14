@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Esports Control Panel – Rocket League</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #020617;
+      --panel: #020617;
+      --card: #020617;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.24);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #1f2937;
+      --danger: #f97373;
+      --success: #22c55e;
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.75);
+      --radius-lg: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #020617 55%);
+      color: var(--text);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #f9fafb;
+    }
+
+    .subheading {
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 900px;
+    }
+
+    .shell {
+      background: radial-gradient(circle at top, #020617 0, #020617 100%);
+      border-radius: 24px;
+      padding: 18px 20px;
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .status {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .status strong { color: #e5e7eb; }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 6px 14px;
+      border: 1px solid rgba(248, 250, 252, 0.15);
+      background: linear-gradient(135deg, #020617, #020617);
+      color: #f9fafb;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.1s ease;
+      box-shadow: 0 0 0 rgba(56, 189, 248, 0);
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, #020617, #020617);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(56,189,248,0.4));
+      border-color: rgba(56,189,248,0.7);
+    }
+
+    .btn-danger {
+      border-color: rgba(248, 113, 113, 0.7);
+      color: #fecaca;
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+
+    .panel {
+      flex: 1 1 340px;
+      min-width: 320px;
+      background: radial-gradient(circle at top left, var(--accent-soft), rgba(15, 23, 42, 0.94));
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(37, 99, 235, 0.5);
+      padding: 14px 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(59, 130, 246, 0.14), transparent 60%);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .panel-header {
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .panel-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #bae6fd;
+    }
+
+    .panel-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .match-card {
+      position: relative;
+      z-index: 1;
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      padding: 8px 8px 10px;
+      margin-bottom: 10px;
+      font-size: 0.8rem;
+    }
+
+    .match-header {
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .match-teams {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .game-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto 1fr;
+      gap: 4px;
+      align-items: center;
+      margin: 2px 0;
+    }
+
+    .game-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .score-input {
+      width: 52px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 4px 6px;
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      font-size: 0.75rem;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    .score-input::placeholder {
+      color: rgba(148, 163, 184, 0.7);
+    }
+
+    .score-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6);
+    }
+
+    .footnote {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .champion-select {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 6px 8px;
+      background: rgba(15, 23, 42, 0.96);
+      color: var(--text);
+      font-size: 0.8rem;
+      margin-top: 4px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .badge.ok { border-color: rgba(34,197,94,0.7); color: #bbf7d0; }
+    .badge.warn { border-color: rgba(234,179,8,0.7); color: #facc15; }
+    .badge.danger { border-color: rgba(248,113,113,0.7); color: #fecaca; }
+
+    @media (max-width: 720px) {
+      body { padding: 14px; }
+      h1 { font-size: 1.3rem; }
+      .shell { padding: 14px 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="toolbar">
+      <div>
+        <h1>Esports Control Panel – Rocket League</h1>
+        <div class="subheading">
+          Admin control room for the Rocket League round robin + BO5 finals.
+          This page sends and receives JSON from your Google Apps Script backend.
+        </div>
+        <div class="status" id="status-line">
+          API not configured yet.
+        </div>
+      </div>
+      <div class="button-row">
+        <button type="button" class="btn" id="load-btn">
+          🔄 Load from Server
+        </button>
+        <button type="button" class="btn btn-primary" id="save-btn">
+          💾 Save to Server
+        </button>
+        <button type="button" class="btn btn-danger" id="clear-btn">
+          ↻ Clear Local Form (no save)
+        </button>
+      </div>
+    </div>
+
+    <div class="layout" id="editor">
+      <!-- Group Stage Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Group Stage – BO3</div>
+          <div class="panel-sub">
+            6 matches, each best-of-3. Enter game scores for each team (up to 3 games).
+          </div>
+        </div>
+        <div id="group-matches"></div>
+        <div class="footnote">
+          BO3: first to 2 game wins. Leave unused games blank. Tied game scores in a single game are ignored.
+        </div>
+      </div>
+
+      <!-- Finals Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Grand Final – BO5</div>
+          <div class="panel-sub">
+            Top 2 seeds from the public bracket play a BO5. Enter game results here.
+          </div>
+        </div>
+        <div class="match-card">
+          <div class="match-header">Grand Final – Games</div>
+          <div id="finals-games"></div>
+          <div class="footnote">
+            BO5: first to 3 game wins. Leave unused games blank. Tied games are ignored.
+          </div>
+        </div>
+
+        <div class="match-card">
+          <div class="match-header">Champion</div>
+          <div class="match-teams">
+            Set the champion name as it should appear on the public Rocket League bracket.
+          </div>
+          <select id="champion-select" class="champion-select">
+            <option value="">— Select Champion —</option>
+          </select>
+          <div id="champion-badge" class="badge warn">
+            ⚠ Champion not set.
+          </div>
+        </div>
+
+        <div class="footnote">
+          “Load from Server” pulls the current JSON from Google Apps Script.<br>
+          “Save to Server” sends the full snapshot back (if your account is allowed by the script).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ======== CONFIGURE THIS WITH YOUR APPS SCRIPT URL =====================
+    // This should be the "Web App" URL from your Apps Script deployment.
+    // Example: const API_URL = 'https://script.google.com/macros/s/AKfyc.../exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwA-hvLLr4l8tvPjviZK_M6rVlF6kXsdTe9GCBSLIvuhe_vuCLnG-FvPvzuisDAoPA-pg/exec';
+    // =======================================================================
+
+    const statusLine = document.getElementById("status-line");
+    const loadBtn = document.getElementById("load-btn");
+    const saveBtn = document.getElementById("save-btn");
+    const clearBtn = document.getElementById("clear-btn");
+    const championSelect = document.getElementById("champion-select");
+    const championBadge = document.getElementById("champion-badge");
+
+    // Tournament structure (same as your RL bracket)
+    const teams = [
+      { id: "T1", name: "Cassopolis" },
+      { id: "T2", name: "Otsego" },
+      { id: "T3", name: "Marcellus High School" },
+      { id: "T4", name: "Michigan Lutheran Highschool" }
+    ];
+
+    const groupMatches = [
+      { id: "G1", t1: "T1", t2: "T2" },
+      { id: "G2", t1: "T3", t2: "T4" },
+      { id: "G3", t1: "T1", t2: "T3" },
+      { id: "G4", t1: "T2", t2: "T4" },
+      { id: "G5", t1: "T1", t2: "T4" },
+      { id: "G6", t1: "T2", t2: "T3" }
+    ];
+
+    function getTeamById(id) {
+      return teams.find(t => t.id === id);
+    }
+
+    // ===== Build UI =======================================================
+
+    function buildGroupUI() {
+      const container = document.getElementById("group-matches");
+      container.innerHTML = "";
+      groupMatches.forEach((m, idx) => {
+        const t1 = getTeamById(m.t1);
+        const t2 = getTeamById(m.t2);
+
+        const card = document.createElement("div");
+        card.className = "match-card";
+        card.innerHTML = `
+          <div class="match-header">Match ${idx + 1}</div>
+          <div class="match-teams">${t1.name} vs ${t2.name}</div>
+          <div class="game-row">
+            <span class="game-label">Game 1</span>
+            <input type="number" min="0" max="20" class="score-input"
+              placeholder="${t1.name}"
+              data-match-id="${m.id}" data-game="1" data-team="1" />
+            <span style="text-align:center;">–</span>
+            <input type="number" min="0" max="20" class="score-input"
+              placeholder="${t2.name}"
+              data-match-id="${m.id}" data-game="1" data-team="2" />
+          </div>
+          <div class="game-row">
+            <span class="game-label">Game 2</span>
+            <input type="number" min="0" max="20" class="score-input"
+              placeholder="${t1.name}"
+              data-match-id="${m.id}" data-game="2" data-team="1" />
+            <span style="text-align:center;">–</span>
+            <input type="number" min="0" max="20" class="score-input"
+              placeholder="${t2.name}"
+              data-match-id="${m.id}" data-game="2" data-team="2" />
+          </div>
+          <div class="game-row">
+            <span class="game-label">Game 3</span>
+            <input type="number" min="0" max="20" class="score-input"
+              placeholder="${t1.name}"
+              data-match-id="${m.id}" data-game="3" data-team="1" />
+            <span style="text-align:center;">–</span>
+            <input type="number" min="0" max="20" class="score-input"
+              placeholder="${t2.name}"
+              data-match-id="${m.id}" data-game="3" data-team="2" />
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function buildFinalsUI() {
+      const container = document.getElementById("finals-games");
+      container.innerHTML = "";
+      for (let g = 1; g <= 5; g++) {
+        const row = document.createElement("div");
+        row.className = "game-row";
+        row.innerHTML = `
+          <span class="game-label">Game ${g}</span>
+          <input type="number" min="0" max="20" class="score-input"
+            placeholder="Top seed"
+            data-final-game="${g}" data-team="1" />
+          <span style="text-align:center;">–</span>
+          <input type="number" min="0" max="20" class="score-input"
+            placeholder="Second seed"
+            data-final-game="${g}" data-team="2" />
+        `;
+        container.appendChild(row);
+      }
+    }
+
+    function buildChampionSelect() {
+      championSelect.innerHTML = "";
+      const optDefault = document.createElement("option");
+      optDefault.value = "";
+      optDefault.textContent = "— Select Champion —";
+      championSelect.appendChild(optDefault);
+
+      teams.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t.name;
+        opt.textContent = t.name;
+        championSelect.appendChild(opt);
+      });
+
+      const optOther = document.createElement("option");
+      optOther.value = "__OTHER__";
+      optOther.textContent = "Other / Custom (set via JSON)";
+      championSelect.appendChild(optOther);
+    }
+
+    // ===== Snapshot helpers ===============================================
+
+    function snapshotFromDOM() {
+      const group = {};
+      for (const m of groupMatches) {
+        group[m.id] = { g1: {}, g2: {}, g3: {} };
+        for (let g = 1; g <= 3; g++) {
+          const s1 = document.querySelector(
+            `.score-input[data-match-id="${m.id}"][data-game="${g}"][data-team="1"]`
+          )?.value ?? "";
+          const s2 = document.querySelector(
+            `.score-input[data-match-id="${m.id}"][data-game="${g}"][data-team="2"]`
+          )?.value ?? "";
+          group[m.id][`g${g}`] = { t1: s1, t2: s2 };
+        }
+      }
+
+      const finals = { games: [] };
+      for (let g = 1; g <= 5; g++) {
+        const s1 = document.querySelector(
+          `.score-input[data-final-game="${g}"][data-team="1"]`
+        )?.value ?? "";
+        const s2 = document.querySelector(
+          `.score-input[data-final-game="${g}"][data-team="2"]`
+        )?.value ?? "";
+        finals.games.push({ t1: s1, t2: s2 });
+      }
+
+      let championName = "";
+      if (championSelect.value === "__OTHER__") {
+        // leave it blank here; your backend or viewer can handle custom naming
+        championName = "";
+      } else {
+        championName = championSelect.value || "";
+      }
+
+      return {
+        tournament: "rocketleague-current",
+        group,
+        finals,
+        championName,
+        updatedAt: Date.now()
+      };
+    }
+
+    function applySnapshot(data) {
+      if (!data) return;
+
+      // Group
+      if (data.group) {
+        for (const m of groupMatches) {
+          const rec = data.group[m.id];
+          if (!rec) continue;
+          for (let g = 1; g <= 3; g++) {
+            const r = rec[`g${g}`];
+            if (!r) continue;
+            const s1El = document.querySelector(
+              `.score-input[data-match-id="${m.id}"][data-game="${g}"][data-team="1"]`
+            );
+            const s2El = document.querySelector(
+              `.score-input[data-match-id="${m.id}"][data-game="${g}"][data-team="2"]`
+            );
+            if (s1El) s1El.value = r.t1 ?? "";
+            if (s2El) s2El.value = r.t2 ?? "";
+          }
+        }
+      }
+
+      // Finals
+      if (data.finals && Array.isArray(data.finals.games)) {
+        data.finals.games.forEach((gObj, idx) => {
+          const gameIndex = idx + 1;
+          const s1El = document.querySelector(
+            `.score-input[data-final-game="${gameIndex}"][data-team="1"]`
+          );
+          const s2El = document.querySelector(
+            `.score-input[data-final-game="${gameIndex}"][data-team="2"]`
+          );
+          if (s1El) s1El.value = gObj?.t1 ?? "";
+          if (s2El) s2El.value = gObj?.t2 ?? "";
+        });
+      }
+
+      // Champion
+      if (data.championName) {
+        const found = Array.from(championSelect.options).find(
+          o => o.value === data.championName && o.value !== "__OTHER__"
+        );
+        if (found) {
+          championSelect.value = found.value;
+        } else {
+          championSelect.value = "__OTHER__";
+        }
+      } else {
+        championSelect.value = "";
+      }
+
+      updateChampionBadge();
+    }
+
+    function updateChampionBadge() {
+      const v = championSelect.value;
+      if (!v) {
+        championBadge.className = "badge warn";
+        championBadge.textContent = "⚠ Champion not set.";
+      } else if (v === "__OTHER__") {
+        championBadge.className = "badge";
+        championBadge.textContent =
+          "ℹ Using custom champion name (handled in JSON / viewer).";
+      } else {
+        championBadge.className = "badge ok";
+        championBadge.textContent = "✅ Champion: " + v;
+      }
+    }
+
+    // ===== API calls =======================================================
+
+    async function loadFromServer() {
+      if (!API_URL || API_URL.includes("PASTE_YOUR_APPS_SCRIPT")) {
+        alert("You must set API_URL in the HTML before loading.");
+        return;
+      }
+      setStatus("Loading from server...");
+      try {
+        const res = await fetch(API_URL, { method: "GET" });
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
+        const data = await res.json();
+        applySnapshot(data);
+        setStatus("Loaded latest data from server.");
+      } catch (err) {
+        console.error(err);
+        setStatus("Error loading from server. See console.", true);
+        alert("Failed to load from server.");
+      }
+    }
+
+    async function saveToServer() {
+      if (!API_URL || API_URL.includes("PASTE_YOUR_APPS_SCRIPT")) {
+        alert("You must set API_URL in the HTML before saving.");
+        return;
+      }
+      const snapshot = snapshotFromDOM();
+      setStatus("Saving to server...");
+      saveBtn.disabled = true;
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(snapshot)
+          // If your Apps Script uses domain auth with Session.getActiveUser()
+          // you may need credentials: 'include' here. Try without first:
+          // credentials: "include"
+        });
+        const data = await res.json();
+        if (data.error === "unauthorized") {
+          setStatus("Unauthorized to save. Your account is not allowed.", true);
+          alert("You are not authorized to save. Check your Apps Script ADMIN list.");
+        } else if (data.status === "ok") {
+          setStatus("Saved to server.");
+        } else {
+          setStatus("Unexpected response from server.", true);
+          alert("Unexpected response from server. Check console.");
+          console.log("Response:", data);
+        }
+      } catch (err) {
+        console.error(err);
+        setStatus("Error saving to server. See console.", true);
+        alert("Failed to save to server.");
+      } finally {
+        saveBtn.disabled = false;
+      }
+    }
+
+    function clearLocalForm() {
+      if (!confirm("Clear all fields on this page only (no server changes)?")) return;
+      document.querySelectorAll(".score-input").forEach(inp => (inp.value = ""));
+      championSelect.value = "";
+      updateChampionBadge();
+      setStatus("Local form cleared. Remember to save if you want to overwrite the server copy.");
+    }
+
+    function setStatus(msg, isError = false) {
+      statusLine.innerHTML = msg;
+      statusLine.style.color = isError ? "#fecaca" : "var(--muted)";
+    }
+
+    // ===== Init ============================================================
+
+    window.addEventListener("DOMContentLoaded", () => {
+      buildGroupUI();
+      buildFinalsUI();
+      buildChampionSelect();
+      updateChampionBadge();
+
+      if (!API_URL || API_URL.includes("PASTE_YOUR_APPS_SCRIPT")) {
+        setStatus("API URL not set. Edit the HTML and set API_URL to your Apps Script Web App URL.", true);
+      } else {
+        setStatus("Ready. Use “Load from Server” to pull the latest data.");
+      }
+
+      loadBtn.addEventListener("click", loadFromServer);
+      saveBtn.addEventListener("click", saveToServer);
+      clearBtn.addEventListener("click", clearLocalForm);
+
+      championSelect.addEventListener("change", updateChampionBadge);
+    });
+  </script>
+</body>
+</html>
