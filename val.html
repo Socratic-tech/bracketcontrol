@@ -407,6 +407,24 @@ const matchDefinitions = [
   { id: "M9", label: "Grand Final Reset (if needed)" }
 ];
 
+    function getSeedFallbackNames(id) {
+  switch (id) {
+    case "M1":
+      // 3 vs 6
+      return ["Buchanan High School", "Michigan Lutheran Highschool"];
+    case "M2":
+      // 4 vs 5
+      return ["Watervliet High School", "Marcellus High School"];
+    case "M3":
+      // 1 vs winner of M2
+      return ["St. Joseph", "Winner of M2"];
+    case "M4":
+      // 2 vs winner of M1
+      return ["West Ottawa High School", "Winner of M1"];
+    default:
+      return ["TBD", "TBD"];
+  }
+}
 
     function setStatus(msg, isError = false) {
       statusLine.innerHTML = msg;
