@@ -293,7 +293,7 @@
           This page sends and receives JSON from your Google Apps Script backend.
         </div>
         <div class="status" id="status-line">
-          Ready once API_URL is set.
+          Ready. Use “Load from Server” to pull the latest data.
         </div>
       </div>
       <div class="button-row">
@@ -330,7 +330,7 @@
         <div class="panel-header">
           <div class="panel-title">Teams & Champion</div>
           <div class="panel-sub">
-            Five-team seeded bracket. Champion here is what the public Valorant bracket will display.
+            Six-team seeded bracket. Champion here is what the public Valorant bracket will display.
           </div>
         </div>
 
@@ -344,7 +344,7 @@
             <li>3 – Buchanan High School</li>
             <li>4 – Watervliet High School</li>
             <li>5 – Marcellus High School</li>
-            <li>6 - Michigan Lutheran High School</li>
+            <li>6 – Michigan Lutheran Highschool</li>
           </ul>
         </div>
 
@@ -389,8 +389,8 @@
       "West Ottawa High School",
       "Buchanan High School",
       "Watervliet High School",
-      "Marcellus High School"
-      "Michigan Lutheran High School"
+      "Marcellus High School",
+      "Michigan Lutheran Highschool"
     ];
 
     // Define the bracket matches
@@ -443,6 +443,11 @@
           </div>
         `;
         container.appendChild(card);
+      });
+
+      // default all score inputs to 0
+      document.querySelectorAll(".score-input").forEach(inp => {
+        if (!inp.value) inp.value = "0";
       });
     }
 
@@ -620,18 +625,9 @@
       buildChampionSelect();
       updateChampionBadge();
 
-      // default all score inputs to 0
-      document.querySelectorAll(".score-input").forEach(inp => {
-        if (!inp.value) inp.value = "0";
-      });
-
-      setStatus("Ready. Use “Load from Server” to pull the latest Valorant data.");
-
       loadBtn.addEventListener("click", loadFromServer);
       saveBtn.addEventListener("click", saveToServer);
       clearBtn.addEventListener("click", clearLocalForm);
-
-      championSelect.addEventListener("change", updateChampionBadge);
     });
   </script>
 </body>
