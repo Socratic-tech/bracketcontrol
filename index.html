@@ -597,41 +597,40 @@
     }
 
     async function saveToServer() {
-      if (!API_URL || API_URL.includes("PASTE_YOUR_APPS_SCRIPT")) {
-        alert("You must set API_URL in the HTML before saving.");
-        return;
-      }
-      const snapshot = snapshotFromDOM();
-      setStatus("Saving to server...");
-      saveBtn.disabled = true;
-      try {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(snapshot)
-          // If your Apps Script uses domain auth with Session.getActiveUser()
-          // you may need credentials: 'include' here. Try without first:
-          // credentials: "include"
-        });
-        const data = await res.json();
-        if (data.error === "unauthorized") {
-          setStatus("Unauthorized to save. Your account is not allowed.", true);
-          alert("You are not authorized to save. Check your Apps Script ADMIN list.");
-        } else if (data.status === "ok") {
-          setStatus("Saved to server.");
-        } else {
-          setStatus("Unexpected response from server.", true);
-          alert("Unexpected response from server. Check console.");
-          console.log("Response:", data);
-        }
-      } catch (err) {
-        console.error(err);
-        setStatus("Error saving to server. See console.", true);
-        alert("Failed to save to server.");
-      } finally {
-        saveBtn.disabled = false;
-      }
+  if (!API_URL || API_URL.includes("PASTE_YOUR_APPS_SCRIPT")) {
+    alert("You must set API_URL in the HTML before saving.");
+    return;
+  }
+  const snapshot = snapshotFromDOM();
+  setStatus("Saving to server...");
+  saveBtn.disabled = true;
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" }, // 👈 important
+      body: JSON.stringify(snapshot)
+      // If your domain setup later requires it, you can add:
+      // credentials: "include"
+    });
+    const data = await res.json();
+    if (data.error === "unauthorized") {
+      setStatus("Unauthorized to save. Your account is not allowed.", true);
+      alert("You are not authorized to save. Check your Apps Script ADMIN list.");
+    } else if (data.status === "ok") {
+      setStatus("Saved to server.");
+    } else {
+      setStatus("Unexpected response from server.", true);
+      alert("Unexpected response from server. Check console.");
+      console.log("Response:", data);
     }
+  } catch (err) {
+    console.error(err);
+    setStatus("Error saving to server. See console.", true);
+    alert("Failed to save to server.");
+  } finally {
+    saveBtn.disabled = false;
+  }
+}
 
     function clearLocalForm() {
       if (!confirm("Clear all fields on this page only (no server changes)?")) return;
