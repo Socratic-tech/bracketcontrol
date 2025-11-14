@@ -651,6 +651,12 @@
       buildChampionSelect();
       updateChampionBadge();
 
+      // Set all scores to zero by default
+document.querySelectorAll(".score-input").forEach(inp => {
+  if (!inp.value) inp.value = "0";
+});
+
+
       if (!API_URL || API_URL.includes("PASTE_YOUR_APPS_SCRIPT")) {
         setStatus("API URL not set. Edit the HTML and set API_URL to your Apps Script Web App URL.", true);
       } else {
