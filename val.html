@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Esports Control Panel – Valorant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #020617;
+      --panel: #020617;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.24);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #1f2937;
+      --danger: #f97373;
+      --success: #22c55e;
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.75);
+      --radius-lg: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #020617 55%);
+      color: var(--text);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #f9fafb;
+    }
+
+    .subheading {
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 900px;
+    }
+
+    .shell {
+      background: radial-gradient(circle at top, #020617 0, #020617 100%);
+      border-radius: 24px;
+      padding: 18px 20px;
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .status {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .status strong { color: #e5e7eb; }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 6px 14px;
+      border: 1px solid rgba(248, 250, 252, 0.15);
+      background: linear-gradient(135deg, #020617, #020617);
+      color: #f9fafb;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.1s ease;
+      box-shadow: 0 0 0 rgba(56, 189, 248, 0);
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, #020617, #020617);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(56,189,248,0.4));
+      border-color: rgba(56,189,248,0.7);
+    }
+
+    .btn-danger {
+      border-color: rgba(248, 113, 113, 0.7);
+      color: #fecaca;
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+
+    .panel {
+      flex: 1 1 360px;
+      min-width: 340px;
+      background: radial-gradient(circle at top left, var(--accent-soft), rgba(15, 23, 42, 0.94));
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(37, 99, 235, 0.5);
+      padding: 14px 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(59, 130, 246, 0.14), transparent 60%);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .panel-header {
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .panel-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #bae6fd;
+    }
+
+    .panel-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .match-card {
+      position: relative;
+      z-index: 1;
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      padding: 8px 8px 10px;
+      margin-bottom: 10px;
+      font-size: 0.8rem;
+    }
+
+    .match-header {
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .match-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .match-teams {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+
+    .match-teams input[type="text"] {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 4px 6px;
+      background: rgba(15, 23, 42, 0.96);
+      color: var(--text);
+      font-size: 0.75rem;
+      outline: none;
+    }
+
+    .match-teams input[type="text"]::placeholder {
+      color: rgba(148, 163, 184, 0.7);
+    }
+
+    .match-teams input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6);
+    }
+
+    .score-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto 1fr;
+      gap: 4px;
+      align-items: center;
+      margin: 2px 0 4px;
+    }
+
+    .score-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .score-input {
+      width: 52px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 4px 6px;
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      font-size: 0.75rem;
+      text-align: center;
+      outline: none;
+    }
+
+    .score-input::placeholder {
+      color: rgba(148, 163, 184, 0.7);
+    }
+
+    .score-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.6);
+    }
+
+    .footnote {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .champion-select {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 6px 8px;
+      background: rgba(15, 23, 42, 0.96);
+      color: var(--text);
+      font-size: 0.8rem;
+      margin-top: 4px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .badge.ok { border-color: rgba(34,197,94,0.7); color: #bbf7d0; }
+    .badge.warn { border-color: rgba(234,179,8,0.7); color: #facc15; }
+
+    @media (max-width: 720px) {
+      body { padding: 14px; }
+      h1 { font-size: 1.3rem; }
+      .shell { padding: 14px 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="toolbar">
+      <div>
+        <h1>Esports Control Panel – Valorant</h1>
+        <div class="subheading">
+          Admin control room for the Valorant double-elimination bracket.
+          This page sends and receives JSON from your Google Apps Script backend.
+        </div>
+        <div class="status" id="status-line">
+          Ready once API_URL is set.
+        </div>
+      </div>
+      <div class="button-row">
+        <button type="button" class="btn" id="load-btn">
+          🔄 Load from Server
+        </button>
+        <button type="button" class="btn btn-primary" id="save-btn">
+          💾 Save to Server
+        </button>
+        <button type="button" class="btn btn-danger" id="clear-btn">
+          ↻ Clear Local Form (no save)
+        </button>
+      </div>
+    </div>
+
+    <div class="layout" id="editor">
+      <!-- Left: Matches -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Bracket Matches</div>
+          <div class="panel-sub">
+            Per-match series scores (map wins). Use labels to track which round this is.
+          </div>
+        </div>
+        <div id="matches-container"></div>
+        <div class="footnote">
+          All matches are treated as BO3 for recording (<em>map wins</em>), but your public bracket logic can enforce
+          “undefeated team must be beaten twice” in Grand Finals.
+        </div>
+      </div>
+
+      <!-- Right: Teams & Champion -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Teams & Champion</div>
+          <div class="panel-sub">
+            Five-team seeded bracket. Champion here is what the public Valorant bracket will display.
+          </div>
+        </div>
+
+        <div class="match-card">
+          <div class="match-header">
+            <span>Teams (Seeded)</span>
+          </div>
+          <ul style="margin:4px 0 0; padding-left:16px; font-size:0.8rem; color:var(--muted);">
+            <li>1 – St. Joseph</li>
+            <li>2 – West Ottawa High School</li>
+            <li>3 – Buchanan High School</li>
+            <li>4 – Watervliet High School</li>
+            <li>5 – Marcellus High School</li>
+            <li>6 - Michigan Lutheran High School</li>
+          </ul>
+        </div>
+
+        <div class="match-card">
+          <div class="match-header">
+            <span>Champion</span>
+          </div>
+          <div class="match-label">
+            Set the champion name exactly as you want it to appear on the public Valorant bracket.
+          </div>
+          <select id="champion-select" class="champion-select">
+            <option value="">— Select Champion —</option>
+          </select>
+          <div id="champion-badge" class="badge warn">
+            ⚠ Champion not set.
+          </div>
+        </div>
+
+        <div class="footnote">
+          “Load from Server” pulls the current Valorant JSON from your Apps Script Web App.<br>
+          “Save to Server” sends the full snapshot back.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ======== VALORANT APPS SCRIPT URL (your API) ==========================
+    const API_URL = 'https://script.google.com/macros/s/AKfycby2qfCjs2NsQ9NgjC0c_4N9vGbSWERCKH2XISsrkW_bBPCJ9Gi6ucY3dpqmTXPCQrj-UQ/exec';
+    // =======================================================================
+
+    const statusLine = document.getElementById("status-line");
+    const loadBtn = document.getElementById("load-btn");
+    const saveBtn = document.getElementById("save-btn");
+    const clearBtn = document.getElementById("clear-btn");
+    const championSelect = document.getElementById("champion-select");
+    const championBadge = document.getElementById("champion-badge");
+
+    // Seeded Valorant teams
+    const teams = [
+      "St. Joseph",
+      "West Ottawa High School",
+      "Buchanan High School",
+      "Watervliet High School",
+      "Marcellus High School"
+      "Michigan Lutheran High School"
+    ];
+
+    // Define the bracket matches
+    const matchDefinitions = [
+      { id: "M1", label: "Upper Round 1 (2 vs 3)" },
+      { id: "M2", label: "Upper Round 1 (4 vs 5)" },
+      { id: "M3", label: "Upper Semifinal (1 vs winner of M2)" },
+      { id: "M4", label: "Upper Final" },
+      { id: "M5", label: "Lower Round 1" },
+      { id: "M6", label: "Lower Semifinal" },
+      { id: "M7", label: "Lower Final" },
+      { id: "M8", label: "Grand Final (First Series)" },
+      { id: "M9", label: "Grand Final Reset (if needed)" }
+    ];
+
+    function setStatus(msg, isError = false) {
+      statusLine.innerHTML = msg;
+      statusLine.style.color = isError ? "#fecaca" : "var(--muted)";
+    }
+
+    function buildMatchesUI() {
+      const container = document.getElementById("matches-container");
+      container.innerHTML = "";
+
+      matchDefinitions.forEach((m) => {
+        const card = document.createElement("div");
+        card.className = "match-card";
+        card.innerHTML = `
+          <div class="match-header">
+            <span>${m.id}</span>
+            <span class="match-label">${m.label}</span>
+          </div>
+          <div class="match-teams">
+            <input type="text"
+              placeholder="Team 1 name"
+              data-match-id="${m.id}" data-field="t1Name" />
+            <input type="text"
+              placeholder="Team 2 name"
+              data-match-id="${m.id}" data-field="t2Name" />
+          </div>
+          <div class="score-row">
+            <span class="score-label">Series (maps)</span>
+            <input type="number" min="0" max="3" class="score-input"
+              placeholder="0"
+              data-match-id="${m.id}" data-field="t1Score" />
+            <span style="text-align:center;">–</span>
+            <input type="number" min="0" max="3" class="score-input"
+              placeholder="0"
+              data-match-id="${m.id}" data-field="t2Score" />
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function buildChampionSelect() {
+      championSelect.innerHTML = "";
+      const optDefault = document.createElement("option");
+      optDefault.value = "";
+      optDefault.textContent = "— Select Champion —";
+      championSelect.appendChild(optDefault);
+
+      teams.forEach(name => {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        championSelect.appendChild(opt);
+      });
+
+      const optOther = document.createElement("option");
+      optOther.value = "__OTHER__";
+      optOther.textContent = "Other / Custom";
+      championSelect.appendChild(optOther);
+    }
+
+    function updateChampionBadge() {
+      const v = championSelect.value;
+      if (!v) {
+        championBadge.className = "badge warn";
+        championBadge.textContent = "⚠ Champion not set.";
+      } else if (v === "__OTHER__") {
+        championBadge.className = "badge";
+        championBadge.textContent =
+          "ℹ Using custom champion name (set in viewer or JSON).";
+      } else {
+        championBadge.className = "badge ok";
+        championBadge.textContent = "✅ Champion: " + v;
+      }
+    }
+
+    function snapshotFromDOM() {
+      const matches = {};
+
+      matchDefinitions.forEach(m => {
+        const t1NameEl = document.querySelector(
+          `input[data-match-id="${m.id}"][data-field="t1Name"]`
+        );
+        const t2NameEl = document.querySelector(
+          `input[data-match-id="${m.id}"][data-field="t2Name"]`
+        );
+        const t1ScoreEl = document.querySelector(
+          `input[data-match-id="${m.id}"][data-field="t1Score"]`
+        );
+        const t2ScoreEl = document.querySelector(
+          `input[data-match-id="${m.id}"][data-field="t2Score"]`
+        );
+
+        matches[m.id] = {
+          label: m.label,
+          t1Name: t1NameEl ? t1NameEl.value : "",
+          t2Name: t2NameEl ? t2NameEl.value : "",
+          t1Score: t1ScoreEl && t1ScoreEl.value !== "" ? t1ScoreEl.value : "0",
+          t2Score: t2ScoreEl && t2ScoreEl.value !== "" ? t2ScoreEl.value : "0"
+        };
+      });
+
+      let championName = "";
+      if (championSelect.value === "__OTHER__") {
+        championName = "";
+      } else {
+        championName = championSelect.value || "";
+      }
+
+      return {
+        tournament: "valorant-current",
+        matches,
+        championName,
+        updatedAt: Date.now()
+      };
+    }
+
+    function applySnapshot(data) {
+      if (!data) return;
+      if (data.matches) {
+        Object.entries(data.matches).forEach(([id, m]) => {
+          const t1NameEl = document.querySelector(
+            `input[data-match-id="${id}"][data-field="t1Name"]`
+          );
+          const t2NameEl = document.querySelector(
+            `input[data-match-id="${id}"][data-field="t2Name"]`
+          );
+          const t1ScoreEl = document.querySelector(
+            `input[data-match-id="${id}"][data-field="t1Score"]`
+          );
+          const t2ScoreEl = document.querySelector(
+            `input[data-match-id="${id}"][data-field="t2Score"]`
+          );
+
+          if (t1NameEl) t1NameEl.value = m.t1Name ?? "";
+          if (t2NameEl) t2NameEl.value = m.t2Name ?? "";
+          if (t1ScoreEl) t1ScoreEl.value = m.t1Score ?? "0";
+          if (t2ScoreEl) t2ScoreEl.value = m.t2Score ?? "0";
+        });
+      }
+
+      if (data.championName) {
+        const found = Array.from(championSelect.options).find(
+          o => o.value === data.championName && o.value !== "__OTHER__"
+        );
+        if (found) {
+          championSelect.value = found.value;
+        } else {
+          championSelect.value = "__OTHER__";
+        }
+      } else {
+        championSelect.value = "";
+      }
+      updateChampionBadge();
+    }
+
+    async function loadFromServer() {
+      setStatus("Loading from server...");
+      try {
+        const res = await fetch(API_URL, { method: "GET" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        applySnapshot(data);
+        setStatus("Loaded latest Valorant data from server.");
+      } catch (err) {
+        console.error(err);
+        setStatus("Error loading from server. See console.", true);
+        alert("Failed to load from server.");
+      }
+    }
+
+    async function saveToServer() {
+      const snapshot = snapshotFromDOM();
+      setStatus("Saving to server...");
+      saveBtn.disabled = true;
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(snapshot)
+        });
+        const data = await res.json();
+        if (data.error === "unauthorized") {
+          setStatus("Unauthorized to save. Your account is not allowed.", true);
+          alert("You are not authorized to save. Check your Apps Script ADMIN list.");
+        } else if (data.status === "ok") {
+          setStatus("Saved to server.");
+        } else {
+          setStatus("Unexpected response from server.", true);
+          alert("Unexpected response from server. Check console.");
+          console.log("Response:", data);
+        }
+      } catch (err) {
+        console.error(err);
+        setStatus("Error saving to server. See console.", true);
+        alert("Failed to save to server.");
+      } finally {
+        saveBtn.disabled = false;
+      }
+    }
+
+    function clearLocalForm() {
+      if (!confirm("Clear all fields on this page only (no server changes)?")) return;
+      document.querySelectorAll("input[data-match-id]").forEach(inp => (inp.value = ""));
+      document.querySelectorAll(".score-input").forEach(inp => (inp.value = "0"));
+      championSelect.value = "";
+      updateChampionBadge();
+      setStatus("Local form cleared. Remember to save if you want to overwrite the server copy.");
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      buildMatchesUI();
+      buildChampionSelect();
+      updateChampionBadge();
+
+      // default all score inputs to 0
+      document.querySelectorAll(".score-input").forEach(inp => {
+        if (!inp.value) inp.value = "0";
+      });
+
+      setStatus("Ready. Use “Load from Server” to pull the latest Valorant data.");
+
+      loadBtn.addEventListener("click", loadFromServer);
+      saveBtn.addEventListener("click", saveToServer);
+      clearBtn.addEventListener("click", clearLocalForm);
+
+      championSelect.addEventListener("change", updateChampionBadge);
+    });
+  </script>
+</body>
+</html>
